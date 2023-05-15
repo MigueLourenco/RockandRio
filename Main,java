@@ -1,0 +1,661 @@
+package pt.ulusofona.aed.rockindeisi2023;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+
+
+public class Main {
+
+    static int countLinhasOkSongs = 0;
+    static int countLinhasNOkSongs = 0;
+    static int countPrimeiraLinhaComErroS = -1;
+    static int countLinhasOkSongs_Artists = 0;
+    static int countLinhasNOkSongs_Artists = 0;
+    static int countPrimeiraLinhaComErroA = -1;
+    static int countLinhasOkSongs_Details = 0;
+    static int countLinhasNOkSongs_Details = 0;
+    static int countPrimeiraLinhaComErroD = -1;
+    static ArrayList<Songs> songsArray = new ArrayList();
+    static ArrayList<Songs> songs_ArtistsArray = new ArrayList();
+    static ArrayList<Songs> songs_DetailsArray = new ArrayList();
+    static ArrayList<Songs> songs_all = new ArrayList();
+    static ArrayList<Songs> errosArray = new ArrayList();
+    static int numArtists = 0;
+    static int condicao3 = 0;
+
+
+
+
+
+    public static String verificarFormato(String string){
+        condicao3 = 0;
+
+        String artistas = string;
+        String[] resultArtistas = artistas.split(",", 0);
+        int i = 0;
+        int k = 0;
+        int posicao1 = 0;
+        int posicao2 = 0;
+
+
+
+
+
+        if((artistas.charAt(0) != '"' || artistas.charAt(artistas.length() - 1) != '"') && resultArtistas.length > 1){
+            condicao3 = 1;
+            artistas = null;
+
+        }else {
+
+
+            if (resultArtistas.length == 1) {
+
+                if (artistas.substring(0, 2) != "['" || artistas.substring(artistas.length() - 2, artistas.length()) != "']") {
+
+                    for (i = 0; i < artistas.length(); i++) {
+                        boolean letra = Character.isLetter(artistas.charAt(i));
+                        if (letra) {
+                            posicao1 = i;
+                            break;
+                        }
+                    }
+
+                    for (k = artistas.length() - 1; k >= 0; k--) {
+                        boolean letra = Character.isLetter(artistas.charAt(k));
+                        if (letra) {
+                            posicao2 = k;
+                            break;
+                        }
+                    }
+
+                    String artistas1 = "['" + artistas.substring(posicao1, posicao2 + 1) + "']";
+
+                    return artistas1;
+
+
+                } else {
+                    return string;
+                }
+
+            } else {
+
+                if ((artistas.charAt(0) != '"' || artistas.charAt(artistas.length() - 1) != '"') || (artistas.substring(1, 3) != "['" || artistas.substring(artistas.length() - 3, artistas.length() - 1) != "']")) {
+                    for (i = 0; i < artistas.length(); i++) {
+                        boolean letra = Character.isLetter(artistas.charAt(i));
+                        if (letra) {
+                            break;
+                        }
+                    }
+
+                    for (k = artistas.length() - 1; k >= 0; k--) {
+                        boolean letra = Character.isLetter(artistas.charAt(k));
+                        if (letra) {
+                            break;
+                        }
+                    }
+
+                    for (int j = 0; j < resultArtistas.length; j++) {
+
+                        String artistas2 = '"' + "['" + artistas.substring(i, k + 1) + "']" + '"';
+                        return artistas2;
+
+                    }
+
+
+                } else {
+                    return string;
+                }
+
+            }
+
+        }
+
+        return artistas;
+
+    }
+
+    public static boolean loadFiles(File folder) {
+
+        songs_DetailsArray = new ArrayList<>();
+        songsArray = new ArrayList<>();
+        songs_ArtistsArray = new ArrayList<>();
+        songs_all = new ArrayList<>();
+        errosArray = new ArrayList<>();
+        countLinhasOkSongs = 0;
+        countLinhasNOkSongs = 0;
+        countPrimeiraLinhaComErroS = -1;
+        countLinhasOkSongs_Artists = 0;
+        countLinhasNOkSongs_Artists = 0;
+        countPrimeiraLinhaComErroA = -1;
+        countLinhasOkSongs_Details = 0;
+        countLinhasNOkSongs_Details = 0;
+        countPrimeiraLinhaComErroD = -1;
+
+
+        File songs = new File(folder, "songs.txt");
+        File song_artists = new File(folder, "song_artists.txt");
+        File song_details = new File(folder, "song_details.txt");
+
+
+        try {
+
+
+
+            Scanner scanner_songs = new Scanner(songs);
+
+            while (scanner_songs.hasNext()) {
+
+                int condicao4  = 0;
+
+                String linha = scanner_songs.nextLine();
+
+                String[] partes = linha.split(" @ ");
+
+                 for(int i = 0; i < linha.length(); i++ ){
+                     if(linha.charAt(i) == '@'){
+                        condicao4++;
+                     }
+
+                 }
+
+
+                    if (partes.length == 3 && condicao4 == 2) {
+                        String idTemaMusical = partes[0];
+                        String titulo = partes[1];
+                        int anoLancamento = Integer.parseInt(partes[2]);
+                        Songs song = new Songs(idTemaMusical, titulo, anoLancamento);
+                        songsArray.add(song);
+
+                        countLinhasOkSongs++;
+
+
+                    } else {
+                        countLinhasNOkSongs++;
+
+                        if (countPrimeiraLinhaComErroS == -1) {
+                            countPrimeiraLinhaComErroS = countLinhasNOkSongs + countLinhasOkSongs;
+                        }
+
+                    }
+
+
+            }
+
+        } catch (FileNotFoundException e) {
+            return false;
+        }
+
+        try {
+            Scanner scanner_song_artists = new Scanner(song_artists);
+
+
+            while (scanner_song_artists.hasNext()) {
+                int condicao5 = 0;
+                int condicao6 = 0;
+
+                String linha = scanner_song_artists.nextLine();
+
+                String[] partes = linha.split(" @ ");
+
+                for(int i = 0; i < linha.length(); i++ ){
+                    if(linha.charAt(i) == '@'){
+                        condicao5++;
+
+                    }
+                    }
+
+                if(partes.length == 2 && condicao5 == 1) {
+
+
+                    String linhacorreta = verificarFormato(partes[1]);
+
+                    if(linhacorreta != null) {
+
+                        if (linhacorreta != partes[1]) {
+
+                            if (partes.length == 2) {
+                                String idTemaMusical = partes[0];
+                                String nomeArtists = linhacorreta;
+                                Songs songs_artists = new Songs(idTemaMusical, nomeArtists);
+                                songs_ArtistsArray.add(songs_artists);
+
+                                countLinhasOkSongs_Artists++;
+
+                            } else {
+                                countLinhasNOkSongs_Artists++;
+
+                                if (countPrimeiraLinhaComErroA == -1) {
+                                    countPrimeiraLinhaComErroA = countLinhasOkSongs_Artists + countLinhasNOkSongs_Artists;
+                                }
+                            }
+
+                        } else {
+
+                            if (partes.length == 2) {
+                                String idTemaMusical = partes[0];
+                                String nomeArtists = partes[1];
+                                Songs songs_artists = new Songs(idTemaMusical, nomeArtists);
+                                songs_ArtistsArray.add(songs_artists);
+
+                                countLinhasOkSongs_Artists++;
+
+                            } else {
+                                countLinhasNOkSongs_Artists++;
+
+                                if (countPrimeiraLinhaComErroA == -1) {
+                                    countPrimeiraLinhaComErroA = countLinhasOkSongs_Artists + countLinhasNOkSongs_Artists;
+                                }
+                            }
+
+                        }
+
+                    }else{
+                        countLinhasOkSongs_Artists++;
+                    }
+
+                }else{
+                    countLinhasNOkSongs_Artists++;
+
+                    if (countPrimeiraLinhaComErroA == -1) {
+                        countPrimeiraLinhaComErroA = countLinhasOkSongs_Artists + countLinhasNOkSongs_Artists;
+                    }
+                }
+            }
+
+        } catch (FileNotFoundException e) {
+            return false;
+        }
+
+        try {
+            Scanner scanner_song_details = new Scanner(song_details);
+
+            while (scanner_song_details.hasNext()) {
+
+                String linha = scanner_song_details.nextLine();
+
+                String[] partes = linha.split(" @ ");
+
+                if (partes.length == 7) {
+
+                    String idTemaMusical = partes[0];
+                    String duracao = partes[1];
+                    int letraExplicita = Integer.parseInt(partes[2]);
+                    int popularidade = Integer.parseInt(partes[3]);
+                    float dancabilidade = Float.parseFloat(partes[4]);
+                    float vivacidade = Float.parseFloat(partes[5]);
+                    float volumemedio = Float.parseFloat(partes[6]);
+                    Songs songs_details = new Songs(idTemaMusical, duracao, letraExplicita, popularidade, dancabilidade, vivacidade, volumemedio);
+                    songs_DetailsArray.add(songs_details);
+
+                    countLinhasOkSongs_Details++;
+
+                } else {
+                    countLinhasNOkSongs_Details++;
+
+                    if (countPrimeiraLinhaComErroD == -1) {
+                        countPrimeiraLinhaComErroD = countLinhasOkSongs_Details + countLinhasNOkSongs_Details ;
+                    }
+
+                }
+
+            }
+
+        } catch (FileNotFoundException e) {
+            return false;
+        }
+
+        return true;
+
+    }
+
+    public static ArrayList getObjects(TipoEntidade tipo) {
+
+        songs_DetailsArray = new ArrayList<>();
+        songsArray = new ArrayList<>();
+        songs_ArtistsArray = new ArrayList<>();
+        errosArray = new ArrayList<>();
+        File file = new File(".");
+        loadFiles(file);
+        songs_all = new ArrayList<>();
+
+
+
+        if (tipo == TipoEntidade.TEMA) {
+
+            for (int i = 0; i < songsArray.size(); i++) {
+
+                Songs song = songsArray.get(i);
+
+                if (song.anoLancamento < 1995) {
+
+                    Songs songs_all1 = new Songs(song.idTemaMusical, song.titulo, song.anoLancamento, null, numArtists, null, 0, 0, 0, 0, 0, tipo.toString(), 0);
+
+                    for(int k = i + 1; k < songsArray.size(); k++){
+                        if(songsArray.get(k).idTemaMusical.equals(song.idTemaMusical)){
+                            songsArray.remove(k);
+                        }
+
+                    }
+
+                    songs_all.add(songs_all1);
+
+
+                } else {
+
+
+
+
+                    for (int j = 0; j < songs_DetailsArray.size(); j++) {
+
+                        Songs songs_details = songs_DetailsArray.get(j);
+
+                        if (song.idTemaMusical.equals(songs_details.idTemaMusical)) {
+
+                            for (int k = 0; k < songs_ArtistsArray.size(); k++) {
+                                Songs songs_artists = songs_ArtistsArray.get(k);
+
+                                if (song.idTemaMusical.equals(songs_artists.idTemaMusical)) {
+
+                                    String artistas = songs_artists.nomeArtists;
+                                    String[] resultArtistas = artistas.split(",", 0);
+
+                                    numArtists = resultArtistas.length;
+
+                                    if (numArtists == 0) {
+                                        numArtists = 1;
+                                    }
+
+                                }
+                            }
+
+                            Songs songs_all1 = new Songs(song.idTemaMusical, song.titulo, song.anoLancamento, null, numArtists, songs_details.duracao, songs_details.letraExplicita, songs_details.popularidade, songs_details.dancabilidade, songs_details.vivacidade, songs_details.volumemedio, tipo.toString(), 0);
+
+
+                            if (songs_all.size() == 0) {
+                                songs_all.add(songs_all1);
+
+                            } else {
+
+                                boolean condicao = true;
+
+                                for (int h = 0; h < songs_all.size(); h++) {
+                                    if (song.idTemaMusical.equals(songs_all.get(h).idTemaMusical)) {
+                                        condicao = false;
+                                    }
+
+                                }
+
+                                if (condicao) {
+                                    songs_all.add(songs_all1);
+                                }
+
+
+                            }
+
+                        }
+
+                    }
+
+                }
+            }
+
+            for(int i = 0; i < songs_all.size(); i++){
+                for(int k = i + 1; k < songs_all.size(); k ++){
+                    if(songs_all.get(i).idTemaMusical.equals(songs_all.get(k).idTemaMusical) && i != k){
+                        songs_all.remove(k);
+                    }
+                }
+            }
+
+
+            return songs_all;
+
+
+        } else if (tipo == TipoEntidade.INPUT_INVALIDO){
+
+
+
+            for(int i = 1; i < 4; i++){
+
+                int count = 0;
+                int count2 = 0;
+                int count4 = 0;
+
+
+                switch(i){
+
+                    case 1:
+
+                        for (int k = 0; k < songsArray.size(); k++) {
+                            for (int j = k; j < songsArray.size(); j++) {
+                                if (songsArray.get(k).idTemaMusical.equals(songsArray.get(j).idTemaMusical) && k != j) {
+                                    countLinhasNOkSongs++;
+                                    countLinhasOkSongs--;
+
+                                    if (count < j && count4 != 1) {
+                                        count = j + 1 ;
+                                        count4 = 1;
+                                    }
+                                }
+                            }
+                        }
+
+                      if(countPrimeiraLinhaComErroS == - 1 && count != 0){
+                            countPrimeiraLinhaComErroS = count;
+
+                        }else if(countPrimeiraLinhaComErroS != - 1 && count != 0){
+                            if(count < countPrimeiraLinhaComErroS){
+                                countPrimeiraLinhaComErroS = count;
+                            }
+                        }
+
+
+
+                        Songs songs_all1 = new Songs();
+                        songs_all1.ficheiro = "songs.txt";
+                        songs_all1.countLinhasOkSongs = countLinhasOkSongs;
+                        songs_all1.countLinhasNOkSongs = countLinhasNOkSongs;
+                        songs_all1.countPrimeiraLinhaComErroA = countPrimeiraLinhaComErroS;
+                        songs_all.add(songs_all1);
+                        break;
+
+                    case 3 :
+
+
+
+                        for (int k = 0; k < songs_ArtistsArray.size(); k++) {
+                            for (int j = k; j < songs_ArtistsArray.size(); j++) {
+                                if (songs_ArtistsArray.get(k).idTemaMusical.equals(songs_ArtistsArray.get(j).idTemaMusical) && k != j) {
+                                    countLinhasNOkSongs_Artists++;
+                                    countLinhasOkSongs_Artists--;
+
+                                    if(countPrimeiraLinhaComErroA < j){
+                                        countPrimeiraLinhaComErroA = j + 1  ;
+                                    }
+                                }
+                            }
+                        }
+
+
+                        Songs songs_all2 = new Songs();
+                        songs_all2.ficheiro = "song_artists.txt";
+                        songs_all2.countLinhasOkSongs = countLinhasOkSongs_Artists;
+                        songs_all2.countLinhasNOkSongs = countLinhasNOkSongs_Artists;
+                        songs_all2.countPrimeiraLinhaComErroA = countPrimeiraLinhaComErroA;
+                        songs_all.add(songs_all2);
+                        break;
+
+                    case 2:
+
+                        int count3 = 0;
+
+                        for (int k = 0; k < songs_DetailsArray.size(); k++) {
+                            for (int j = k; j < songs_DetailsArray.size(); j++) {
+                                if (songs_DetailsArray.get(k).idTemaMusical.equals(songs_DetailsArray.get(j).idTemaMusical) && k != j) {
+                                    countLinhasNOkSongs_Details++;
+                                    countLinhasOkSongs_Details--;
+
+
+                                    if (count2 < j && count3 != 1) {
+                                        count2 = j ;
+                                        count3 = 1;
+                                    }
+                                }
+                            }
+                        }
+
+
+
+                        if(countPrimeiraLinhaComErroD == - 1 && count2 != 0){
+                            countPrimeiraLinhaComErroD = count2;
+
+                        }else if(countPrimeiraLinhaComErroD != - 1 && count2 != 0){
+                            if(count2 < countPrimeiraLinhaComErroD){
+                                countPrimeiraLinhaComErroD = count2;
+                            }
+                        }
+
+                        Songs songs_all3 = new Songs();
+                        songs_all3.ficheiro = "song_details.txt";
+                        songs_all3.countLinhasOkSongs = countLinhasOkSongs_Details;
+                        songs_all3.countLinhasNOkSongs = countLinhasNOkSongs_Details;
+                        songs_all3.countPrimeiraLinhaComErroA = countPrimeiraLinhaComErroD;
+                        songs_all.add(songs_all3);
+                        break;
+                }
+
+            }
+
+            return songs_all;
+
+        }else {
+
+            int condicao1 = 1;
+
+            for(int i = 0; i < songs_ArtistsArray.size(); i ++){
+
+                String artistas = songs_ArtistsArray.get(i).nomeArtists;
+
+
+                if(artistas.length() > 5) {
+
+                    String[] resultArtistas = artistas.split(",", 0);
+
+                    for (int u = 0; u < resultArtistas.length; u++) {
+
+                        String str = resultArtistas[u].replace("['", "");
+                        String str1 = str.replace("']", "");
+                        String str2 = str1.replace("'", "");
+                        String str3 = str2.replace("\"", "");
+                        resultArtistas[u] = str3;
+                        for(int r = 0; r < resultArtistas[u].length(); r++ ){
+                            if(resultArtistas[u].charAt(r) != ' ' ){
+                                resultArtistas[u] = resultArtistas[u].substring(r,resultArtistas[u].length());
+                                break;
+                            }
+                        }
+                    }
+
+                    for (int t = 0; t < resultArtistas.length; t++) {
+
+                        Songs songs_all1 = new Songs();
+                        songs_all1.tipoEntidade = tipo.toString();
+                        songs_all1.nomeArtists = resultArtistas[t];
+
+                        songs_all1.numArtists1 = 0;
+
+                        for (int k = 0; k < songs_ArtistsArray.size(); k++) {
+
+                            String artistas1 = songs_ArtistsArray.get(k).nomeArtists;
+                            String[] resultArtistas1 = artistas1.split(",", 0);
+
+                            for (int u = 0; u < resultArtistas1.length; u++) {
+
+                                String str = resultArtistas1[u].replace("['", "");
+                                String str1 = str.replace("']", "");
+                                String str2 = str1.replace("'", "");
+                                String str3 = str2.replace("\"", "");
+                                resultArtistas1[u] = str3;
+                                for(int r = 0; r < resultArtistas1[u].length(); r++ ){
+                                    if(resultArtistas1[u].charAt(r) != ' ' ){
+                                        resultArtistas1[u] = resultArtistas1[u].substring(r,resultArtistas1[u].length());
+                                        break;
+                                    }
+                                }
+                            }
+
+                            for (int y = 0; y < resultArtistas1.length; y++) {
+
+                                if (resultArtistas[t].equals(resultArtistas1[y])) {
+                                    songs_all1.numArtists1++;
+                                }
+
+                            }
+
+                        }
+
+                        if(condicao1 == 1) {
+
+                            if (songs_all.size() == 0) {
+                                songs_all.add(songs_all1);
+
+                            } else {
+
+                                boolean condicao = true;
+
+                                for (int h = 0; h < songs_all.size(); h++) {
+                                    if (songs_all1.nomeArtists.equals(songs_all.get(h).nomeArtists)) {
+                                        condicao = false;
+                                    }
+
+                                }
+
+                                if (condicao) {
+                                    songs_all.add(songs_all1);
+                                }
+
+                            }
+
+
+                        }
+                        condicao1 = 1;
+
+
+                    }
+
+                }
+            }
+
+            return songs_all;
+
+        }
+
+
+    }
+
+
+    public static void main(String[] args) {
+
+        File file = new File(".");
+        loadFiles(file);
+
+        getObjects(TipoEntidade.ARTISTA);
+        System.out.println(songs_all.size());
+
+
+        for (int i = 0; i < songs_all.size(); i++) {
+            System.out.println(songs_all.get(i));
+
+
+        }
+
+    }
+
+}
+
+
+
+
